@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { User } from "../config.mjs";
 import { Database } from "./Database.mjs";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from 'bcrypt';
 
 const RefreshTokens = new Database();
@@ -12,12 +12,12 @@ export class AuthRoute
     constructor() {
         this.router = Router();
         // initialize
-        this.router.post('/auth-login', this.AuthLogin);
-        this.router.post('/auth-register', this.AuthRegister);
-        this.router.post('/auth-verify', this.AuthVerify);
-        this.router.post('/auth-logout', this.AuthLogout);
-        this.router.post('/auth-get-data', this.AuthGetData);
-        this.router.post('/auth-update-data', this.AuthUpdateData)
+        this.router.post('/login', this.AuthLogin);
+        this.router.post('/register', this.AuthRegister);
+        this.router.post('/verify', this.AuthVerify);
+        this.router.post('/logout', this.AuthLogout);
+        this.router.post('/get-data', this.AuthGetData);
+        this.router.post('/update-data', this.AuthUpdateData)
     }
     async AuthLogin(req, res) {
         // TODO
@@ -48,16 +48,24 @@ export class AuthRoute
 
         RefreshTokens.UpdateData(refreshToken, true);
 
+        res.cookie("refreshToken", refreshToken, { maxAge: 900000, httpOnly: true });
+
         res.json({
-            accessToken : accessToken,
-            refreshToken : refreshToken,
+            message : "Login successfully",
         });
     }
     AuthLogout(req, res) {
-        const { token } = req.body;
+        const { refreshToken } = req.cookies;
 
-        RefreshTokens.RemoveData(token);
-        return res.status(204).json({ message : "Logout successfully"});
+        if (!refreshToken)
+        {
+            return res.status(404).json({ message : "Logout failed" });
+        }
+
+        RefreshTokens.RemoveData(refreshToken);
+        
+        res.clearCookie("refreshToken");
+        res.json({ message : "Logout successfully"});
     }
     async AuthRegister(req, res) {
         // TODO

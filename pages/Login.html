@@ -1,6 +1,43 @@
 <header>
     <title>MOOD Diary - Login</title>
     <link rel="stylesheet" href="public/StyleSheet.css" />
+    <script>
+        function submitForm1()
+        {
+            fetch('/auth/login', {
+                method: "POST",
+                body: JSON.stringify({
+                    username: document.getElementById("user").value,
+                    password: document.getElementById("pass").value,
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+            .then(res => res.json())
+            .then((json) => {
+                console.log(json);
+                alert(json['message'])
+            });
+        }
+        function submitForm2()
+        {
+            fetch('/auth/logout', {
+                method: "POST",
+                body: JSON.stringify({
+                    token: ""
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+            .then(res => res.json())
+            .then((json) => {
+                console.log(json);
+                alert(json['message'])
+            });
+        }
+    </script>
 </header>
 <ul>
     <li>
@@ -22,3 +59,7 @@
 <h1>
     LOGIN PAGE!
 </h1>
+<input id="user" type="text" placeholder="username : "/>
+<input id="pass" type="text" placeholder="password : "/>
+<button onclick="submitForm1()">Login</button>
+<button onclick="submitForm2()">Logout</button>
